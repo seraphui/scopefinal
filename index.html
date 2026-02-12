@@ -1,0 +1,2822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LinkedInScope - Job Application Tracker</title>
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230A66C2'/><text y='.9em' x='50%' text-anchor='middle' font-size='70' font-weight='bold' fill='white' font-family='Arial'>in</text></svg>">
+  <link rel="apple-touch-icon" href="favicon.png">
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    .app {
+      min-height: 100vh;
+      background-color: #E8DCC8;
+      display: flex;
+      flex-direction: column;
+    }
+    .app-header {
+      background: #FAF7F2;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      padding: 16px 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    .header-left {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 0;
+    }
+    .logo-text {
+      font-size: 28px;
+      font-weight: 700;
+      color: #0A66C2;
+      letter-spacing: -0.5px;
+      line-height: 1;
+    }
+    .logo-in-box {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #0A66C2;
+      color: white;
+      width: 32px;
+      height: 32px;
+      border-radius: 4px;
+      font-size: 20px;
+      font-weight: 700;
+      margin: 0 2px;
+    }
+    .resume-selector {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border: 1px solid #D1C9BA;
+      border-radius: 4px;
+      background: #FFFDF9;
+      font-size: 14px;
+      cursor: pointer;
+      min-width: 150px;
+    }
+    .resume-selector select {
+      border: none;
+      background: transparent;
+      font-size: 14px;
+      color: #0A66C2;
+      font-weight: 500;
+      cursor: pointer;
+      flex: 1;
+      outline: none;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%230A66C2' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right center;
+      padding-right: 20px;
+    }
+    .resume-icon {
+      width: 16px;
+      height: 16px;
+      color: #666;
+    }
+    .resume-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .upload-resume-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      background-color: #0A66C2;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .upload-resume-btn:hover {
+      background-color: #004182;
+    }
+    .upload-resume-btn svg {
+      width: 14px;
+      height: 14px;
+    }
+    /* Presets Section */
+    .presets-divider {
+      width: 1px;
+      height: 24px;
+      background-color: #0A66C2;
+      margin: 0 12px;
+    }
+    .presets-section {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .presets-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: #0A66C2;
+    }
+    .presets-buttons {
+      display: flex;
+      gap: 6px;
+    }
+    .preset-btn {
+      min-width: 42px;
+      padding: 6px 12px;
+      border-radius: 16px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+    .preset-btn.empty {
+      background: transparent;
+      border: 1px dashed #0A66C2;
+      color: #9CA3AF;
+    }
+    .preset-btn.empty:hover {
+      background: rgba(10, 102, 194, 0.08);
+      color: #0A66C2;
+    }
+    .preset-btn.saved {
+      background: #0A66C2;
+      border: 1px solid #0A66C2;
+      color: white;
+    }
+    .preset-btn.saved:hover {
+      background: #094d8f;
+    }
+    .preset-btn.active {
+      background: #094d8f;
+      border: 2px solid #0A66C2;
+      color: white;
+      box-shadow: 0 0 8px rgba(10, 102, 194, 0.4);
+    }
+    /* Preset Modal */
+    .preset-modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 3000;
+    }
+    .preset-modal {
+      background: #fff;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+    }
+    .preset-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .preset-modal-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #111827;
+      margin: 0;
+    }
+    .preset-modal-close {
+      background: none;
+      border: none;
+      color: #9CA3AF;
+      cursor: pointer;
+      padding: 4px;
+      display: flex;
+      border-radius: 4px;
+    }
+    .preset-modal-close:hover {
+      background: #f3f4f6;
+      color: #374151;
+    }
+    .preset-modal-close svg {
+      width: 20px;
+      height: 20px;
+    }
+    .preset-modal-body {
+      padding: 20px;
+    }
+    .preset-name-input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+    .preset-name-input:focus {
+      outline: none;
+      border-color: #0A66C2;
+      box-shadow: 0 0 0 3px rgba(10, 102, 194, 0.1);
+    }
+    .preset-preview {
+      background: #f9fafb;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 16px;
+    }
+    .preset-preview-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: #6b7280;
+      text-transform: uppercase;
+      margin: 0 0 8px 0;
+    }
+    .preset-preview-item {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: #374151;
+      padding: 4px 0;
+    }
+    .preset-preview-count {
+      font-weight: 600;
+      color: #0A66C2;
+    }
+    .preset-modal-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+    }
+    .preset-modal-btn {
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .preset-modal-btn.cancel {
+      background: #f3f4f6;
+      border: 1px solid #d1d5db;
+      color: #374151;
+    }
+    .preset-modal-btn.cancel:hover {
+      background: #e5e7eb;
+    }
+    .preset-modal-btn.save {
+      background: #0A66C2;
+      border: none;
+      color: white;
+    }
+    .preset-modal-btn.save:hover {
+      background: #094d8f;
+    }
+    .preset-modal-btn.delete {
+      background: #EF4444;
+      border: none;
+      color: white;
+    }
+    .preset-modal-btn.delete:hover {
+      background: #DC2626;
+    }
+    /* Preset Context Menu */
+    .preset-context-menu {
+      position: fixed;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      padding: 6px 0;
+      min-width: 160px;
+      z-index: 4000;
+    }
+    .preset-context-item {
+      padding: 10px 16px;
+      font-size: 13px;
+      color: #374151;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: background 0.15s;
+    }
+    .preset-context-item:hover {
+      background: #f3f4f6;
+    }
+    .preset-context-item.danger {
+      color: #EF4444;
+    }
+    .preset-context-item.danger:hover {
+      background: #FEE2E2;
+    }
+    .preset-context-item svg {
+      width: 16px;
+      height: 16px;
+    }
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1F2937;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      z-index: 5000;
+      animation: toastIn 0.3s ease, toastOut 0.3s ease 2.7s;
+    }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+      to { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+    @keyframes toastOut {
+      from { opacity: 1; transform: translateX(-50%) translateY(0); }
+      to { opacity: 0; transform: translateX(-50%) translateY(20px); }
+    }
+    /* Preset Tooltip */
+    .preset-tooltip {
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1F2937;
+      color: white;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 11px;
+      white-space: nowrap;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.2s, visibility 0.2s;
+      pointer-events: none;
+      z-index: 100;
+    }
+    .preset-tooltip::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 5px solid transparent;
+      border-top-color: #1F2937;
+    }
+    .preset-btn:hover .preset-tooltip {
+      opacity: 1;
+      visibility: visible;
+    }
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .dark-mode-toggle {
+      padding: 10px;
+      background: #E5E7EB;
+      border: 1px solid #D1D5DB;
+      border-radius: 8px;
+      cursor: pointer;
+      color: #374151;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+    .dark-mode-toggle:hover { 
+      background-color: #D1D5DB; 
+      border-color: #9CA3AF;
+    }
+    .dark-mode-toggle svg {
+      width: 20px;
+      height: 20px;
+    }
+    .app-main { flex: 1; padding: 24px; overflow-x: auto; }
+    .kanban-board {
+      display: flex;
+      gap: 16px;
+      max-width: 1400px;
+      margin: 0 auto;
+      min-height: calc(100vh - 200px);
+    }
+    .job-column {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      margin: 0 8px;
+      border: 2px solid #0a66c2;
+      border-radius: 8px;
+      background: rgba(10, 102, 194, 0.02);
+      padding: 12px;
+    }
+    .column-header { margin-bottom: 12px; }
+    .column-title {
+      font-size: 12px;
+      font-weight: 700;
+      margin: 0;
+      color: #0a66c2;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      white-space: nowrap;
+    }
+    .filter-container {
+      margin-top: 8px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .filter-input {
+      display: none;
+    }
+    .filter-input:focus {
+      outline: none;
+    }
+    .filter-btn {
+      padding: 6px 12px;
+      border: 1px solid #0a66c2;
+      border-radius: 4px;
+      background: transparent;
+      font-size: 12px;
+      cursor: pointer;
+      color: #0a66c2;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s;
+    }
+    .filter-btn:hover { background: rgba(10, 102, 194, 0.1); }
+    .filter-btn svg { width: 12px; height: 12px; }
+    .filter-badge {
+      background: #0a66c2;
+      color: white;
+      font-size: 10px;
+      padding: 1px 5px;
+      border-radius: 8px;
+      margin-left: 4px;
+    }
+    .column-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 4px;
+      padding-right: 8px;
+      min-height: 200px;
+      max-height: calc(100vh - 300px);
+      scroll-behavior: smooth;
+      scrollbar-width: thin;
+      scrollbar-color: #D0C4B0 #E8DCC8;
+    }
+    .column-content::-webkit-scrollbar {
+      width: 6px;
+    }
+    .column-content::-webkit-scrollbar-track {
+      background: #E8DCC8;
+      border-radius: 10px;
+    }
+    .column-content::-webkit-scrollbar-thumb {
+      background: #D0C4B0;
+      border-radius: 10px;
+    }
+    .column-content::-webkit-scrollbar-thumb:hover {
+      background: #BFB3A0;
+    }
+    .job-card {
+      background: #F5EFE7;
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+      margin-bottom: 12px;
+      cursor: grab;
+      transition: transform 0.2s, box-shadow 0.2s;
+      min-height: 140px;
+      position: relative;
+    }
+    .job-card:active { cursor: grabbing; }
+    .applicant-counter {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      color: #9CA3AF;
+    }
+    .applicant-counter svg {
+      width: 14px;
+      height: 14px;
+    }
+    .job-card.dragging {
+      opacity: 0.5;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    .job-card-content { padding: 16px; }
+    .job-card-header {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+    .company-logo {
+      width: 56px;
+      height: 56px;
+      border-radius: 10px;
+      object-fit: contain;
+      background: #fff;
+      padding: 6px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      flex-shrink: 0;
+    }
+    .job-card-info {
+      flex: 1;
+      min-width: 0;
+      padding-top: 2px;
+    }
+    .job-card-icons { 
+      display: flex; 
+      gap: 4px;
+      align-items: center;
+    }
+    .icon-indicator {
+      color: #6B7280;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px;
+      height: 16px;
+    }
+    .icon-indicator svg {
+      width: 14px;
+      height: 14px;
+    }
+    .twitter-link {
+      color: #6B7280;
+      cursor: pointer;
+      transition: color 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px;
+      height: 16px;
+    }
+    .twitter-link:hover {
+      color: #0a66c2;
+    }
+    .twitter-link svg {
+      width: 14px;
+      height: 14px;
+    }
+    .location-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .location-tooltip {
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      margin-bottom: 6px;
+      padding: 4px 8px;
+      background: #1f2937;
+      color: white;
+      font-size: 11px;
+      border-radius: 4px;
+      white-space: nowrap;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.2s, visibility 0.2s;
+      z-index: 10;
+      pointer-events: none;
+    }
+    .location-wrapper:hover .location-tooltip {
+      opacity: 1;
+      visibility: visible;
+    }
+    .location-tooltip::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 4px solid transparent;
+      border-top-color: #1f2937;
+    }
+    .icon-button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #9CA3AF;
+      padding: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+    }
+    .icon-button:hover { background-color: #EDE6D6; color: #0A66C2; }
+    .job-card-body { margin-bottom: 0; }
+    .job-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin: 0 0 4px 0;
+      color: #111827;
+      line-height: 1.3;
+    }
+    .company-name {
+      font-size: 14px;
+      color: #6B7280;
+      font-weight: 500;
+      margin: 0 0 8px 0;
+    }
+    .meta-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .icon-separator {
+      width: 1px;
+      height: 12px;
+      background-color: #9CA3AF;
+      margin: 0 2px;
+    }
+    .timestamp {
+      font-size: 12px;
+      color: #9CA3AF;
+      font-weight: 400;
+      margin: 0;
+    }
+    .job-card-footer { 
+      display: flex; 
+      justify-content: flex-end;
+      margin-top: 14px;
+    }
+    .action-button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .action-button.quick-apply {
+      background-color: #0A66C2;
+      color: white;
+    }
+    .action-button.quick-apply:hover { background-color: #004182; }
+    .action-button.applying {
+      background-color: #F59E0B;
+      color: white;
+      cursor: not-allowed;
+    }
+    .action-button.applied {
+      background-color: #9CA3AF;
+      color: white;
+      cursor: not-allowed;
+    }
+    .spinner {
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .empty-column {
+      text-align: center;
+      padding: 40px 20px;
+      color: #9CA3AF;
+    }
+    /* Filter Modal Styles */
+    .filter-modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+    }
+    .filter-modal {
+      background: #1a1a1a;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 700px;
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    }
+    .filter-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+      border-bottom: 1px solid #333;
+    }
+    .filter-modal-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #fff;
+      margin: 0;
+    }
+    .filter-modal-close {
+      background: none;
+      border: none;
+      color: #9CA3AF;
+      cursor: pointer;
+      padding: 4px;
+      display: flex;
+      border-radius: 4px;
+    }
+    .filter-modal-close:hover { background: #333; color: #fff; }
+    .filter-modal-close svg { width: 20px; height: 20px; }
+    .filter-tabs {
+      display: flex;
+      gap: 8px;
+      padding: 12px 20px;
+      border-bottom: 1px solid #333;
+    }
+    .filter-tab {
+      padding: 8px 14px;
+      border-radius: 6px;
+      background: #2a2a2a;
+      border: none;
+      color: #9CA3AF;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .filter-tab:hover { background: #333; }
+    .filter-tab.active {
+      background: #0a66c2;
+      color: white;
+    }
+    .filter-tab-badge {
+      background: rgba(255,255,255,0.2);
+      padding: 1px 6px;
+      border-radius: 8px;
+      font-size: 11px;
+    }
+    .filter-tab.active .filter-tab-badge {
+      background: rgba(255,255,255,0.3);
+    }
+    .filter-search-row {
+      display: flex;
+      gap: 12px;
+      padding: 12px 20px;
+      border-bottom: 1px solid #333;
+    }
+    .filter-search-input {
+      flex: 1;
+      padding: 10px 12px;
+      background: #2a2a2a;
+      border: 1px solid #444;
+      border-radius: 6px;
+      color: #fff;
+      font-size: 13px;
+    }
+    .filter-search-input::placeholder { color: #6B7280; }
+    .filter-search-input:focus { outline: none; border-color: #0a66c2; }
+    .filter-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 20px;
+    }
+    .filter-section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .filter-section-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      margin: 0;
+    }
+    .filter-select-all-btn {
+      background: none;
+      border: 1px solid #444;
+      color: #9CA3AF;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 11px;
+      cursor: pointer;
+    }
+    .filter-select-all-btn:hover { background: #333; color: #fff; }
+    .filter-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .filter-pill {
+      padding: 8px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 2px solid transparent;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .filter-pill.unselected {
+      background: #2a2a2a;
+      border-color: #444;
+      color: #9CA3AF;
+    }
+    .filter-pill.unselected:hover {
+      background: #333;
+      border-color: #555;
+    }
+    .filter-pill.selected {
+      background: #E8DCC8;
+      border-color: #0a66c2;
+      color: #0a66c2;
+      font-weight: 600;
+    }
+    .filter-pill-logo {
+      width: 18px;
+      height: 18px;
+      border-radius: 4px;
+      object-fit: contain;
+      background: #fff;
+    }
+    .filter-modal-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+      border-top: 1px solid #333;
+      gap: 12px;
+    }
+    .filter-footer-left {
+      display: flex;
+      gap: 8px;
+    }
+    .filter-secondary-btn {
+      padding: 10px 16px;
+      background: #2a2a2a;
+      border: 1px solid #444;
+      border-radius: 6px;
+      color: #9CA3AF;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .filter-secondary-btn:hover { background: #333; color: #fff; }
+    .filter-apply-btn {
+      padding: 10px 24px;
+      background: #0a66c2;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .filter-apply-btn:hover { background: #004182; }
+    /* Active Applications Bar Styles */
+    .active-applications-bar {
+      background: #1a1a1a;
+      padding: 8px 24px;
+      border-bottom: 1px solid #333;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+    .active-applications-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+      max-width: 1400px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .active-applications-title {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #9CA3AF;
+      margin: 0;
+    }
+    .active-applications-count {
+      background: #0A66C2;
+      color: white;
+      font-size: 9px;
+      font-weight: 600;
+      padding: 1px 6px;
+      border-radius: 8px;
+    }
+    .active-applications-scroll-container {
+      position: relative;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    .active-applications-scroll {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 2px 0;
+      scrollbar-width: thin;
+      scrollbar-color: #444 #1a1a1a;
+    }
+    .active-applications-scroll::-webkit-scrollbar {
+      height: 4px;
+    }
+    .active-applications-scroll::-webkit-scrollbar-track {
+      background: #1a1a1a;
+    }
+    .active-applications-scroll::-webkit-scrollbar-thumb {
+      background: #444;
+      border-radius: 2px;
+    }
+    .active-application-card {
+      flex-shrink: 0;
+      width: 160px;
+      background: #2a2a2a;
+      border-radius: 6px;
+      padding: 6px 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      position: relative;
+      border: 1px solid #333;
+      transition: border-color 0.2s, background-color 0.2s;
+      cursor: pointer;
+    }
+    .active-application-card:hover {
+      border-color: #444;
+      background: #333;
+    }
+    .active-application-card.applying {
+      border-color: #F59E0B;
+      background: rgba(245, 158, 11, 0.1);
+    }
+    .active-application-card.applying .active-application-company {
+      color: #F59E0B;
+    }
+    .active-application-logo {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      object-fit: contain;
+      background: #fff;
+      padding: 2px;
+      flex-shrink: 0;
+    }
+    .active-application-info {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+    }
+    .active-application-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: #fff;
+      margin: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.3;
+    }
+    .active-application-company {
+      font-size: 9px;
+      color: #9CA3AF;
+      margin: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.3;
+    }
+    .active-application-date {
+      display: none;
+    }
+    .active-application-trash {
+      position: absolute;
+      right: 4px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: rgba(239, 68, 68, 0.15);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.2s ease-in;
+    }
+    .active-application-card:hover .active-application-trash {
+      opacity: 1;
+    }
+    .active-application-trash svg {
+      width: 12px;
+      height: 12px;
+      color: #EF4444;
+    }
+    .active-application-trash:hover {
+      background: rgba(239, 68, 68, 0.3);
+    }
+    .active-applications-empty {
+      color: #6B7280;
+      font-size: 10px;
+      padding: 4px 0;
+    }
+    /* Unapply Confirmation Modal */
+    .unapply-modal-content {
+      background: #2a2a2a;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 400px;
+      padding: 24px;
+      text-align: center;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    }
+    .unapply-modal-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: rgba(239, 68, 68, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px auto;
+    }
+    .unapply-modal-icon svg {
+      width: 24px;
+      height: 24px;
+      color: #EF4444;
+    }
+    .unapply-modal-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #fff;
+      margin: 0 0 8px 0;
+    }
+    .unapply-modal-text {
+      font-size: 14px;
+      color: #9CA3AF;
+      margin: 0 0 24px 0;
+    }
+    .unapply-modal-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+    .unapply-modal-cancel {
+      padding: 10px 20px;
+      background: #444;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .unapply-modal-cancel:hover {
+      background: #555;
+    }
+    .unapply-modal-confirm {
+      padding: 10px 20px;
+      background: #EF4444;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .unapply-modal-confirm:hover {
+      background: #DC2626;
+    }
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal-content {
+      background: #FAF7F2;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      border-bottom: 1px solid #eee;
+    }
+    .modal-header h2 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 600;
+    }
+    .close-button {
+      background: none;
+      border: none;
+      font-size: 28px;
+      cursor: pointer;
+      color: #666;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+    }
+    .close-button:hover { background-color: #f0f0f0; }
+    .job-form { padding: 20px; }
+    .form-group { margin-bottom: 20px; }
+    .form-group label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 500;
+      color: #333;
+      font-size: 14px;
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #D1C9BA;
+      border-radius: 4px;
+      font-size: 14px;
+      font-family: inherit;
+      box-sizing: border-box;
+      background: #FFFDF9;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #0A66C2;
+      box-shadow: 0 0 0 3px rgba(10, 102, 194, 0.1);
+    }
+    .form-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+      margin-top: 24px;
+    }
+    .cancel-button,
+    .save-button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .cancel-button {
+      background-color: #E8DCC8;
+      color: #4B5563;
+    }
+    .cancel-button:hover { background-color: #DDD0BC; }
+    .save-button {
+      background-color: #0A66C2;
+      color: white;
+    }
+    .save-button:hover { background-color: #004182; }
+    .column-content.drag-over {
+      background-color: rgba(10, 102, 194, 0.08);
+      border: 2px dashed #0A66C2;
+      border-radius: 8px;
+    }
+    /* Dark Mode Styles */
+    .dark-mode .app { background-color: #111827; }
+    .dark-mode .app-header { background: #1F2937; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3); }
+    .dark-mode .logo-text { color: #60A5FA; }
+    .dark-mode .logo-in-box { background-color: #3B82F6; }
+    
+    /* Theme Toggle Button - Dark Mode */
+    .dark-mode .dark-mode-toggle {
+      background: #374151;
+      border: 1px solid #4B5563;
+      border-radius: 8px;
+      color: #FBBF24;
+      padding: 10px;
+    }
+    .dark-mode .dark-mode-toggle:hover {
+      background-color: #4B5563;
+      border-color: #6B7280;
+    }
+    .dark-mode .dark-mode-toggle svg {
+      color: #FBBF24;
+    }
+    
+    /* Resume Dropdown - Dark Mode */
+    .dark-mode .resume-selector {
+      background: #1F2937;
+      border-color: #4B5563;
+    }
+    .dark-mode .resume-selector select {
+      color: #F3F4F6;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2360A5FA' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    }
+    .dark-mode .resume-selector select option {
+      background: #1F2937;
+      color: #F3F4F6;
+    }
+    .dark-mode .resume-icon {
+      color: #9CA3AF;
+    }
+    .dark-mode .upload-resume-btn {
+      background-color: #3B82F6;
+    }
+    .dark-mode .upload-resume-btn:hover {
+      background-color: #2563EB;
+    }
+    
+    /* Presets - Dark Mode */
+    .dark-mode .presets-divider {
+      background-color: #60A5FA;
+    }
+    .dark-mode .presets-label {
+      color: #60A5FA;
+    }
+    .dark-mode .preset-btn.empty {
+      border-color: #60A5FA;
+      color: #9CA3AF;
+    }
+    .dark-mode .preset-btn.empty:hover {
+      background: rgba(96, 165, 250, 0.15);
+      color: #60A5FA;
+    }
+    .dark-mode .preset-btn.saved {
+      background: #3B82F6;
+      border-color: #3B82F6;
+    }
+    .dark-mode .preset-btn.saved:hover {
+      background: #2563EB;
+    }
+    .dark-mode .preset-btn.active {
+      background: #2563EB;
+      border-color: #60A5FA;
+      box-shadow: 0 0 12px rgba(96, 165, 250, 0.5);
+    }
+    .dark-mode .preset-modal {
+      background: #1F2937;
+    }
+    .dark-mode .preset-modal-header {
+      border-bottom-color: #374151;
+    }
+    .dark-mode .preset-modal-title {
+      color: #F3F4F6;
+    }
+    .dark-mode .preset-modal-close {
+      color: #9CA3AF;
+    }
+    .dark-mode .preset-modal-close:hover {
+      background: #374151;
+      color: #F3F4F6;
+    }
+    .dark-mode .preset-name-input {
+      background: #374151;
+      border-color: #4B5563;
+      color: #F3F4F6;
+    }
+    .dark-mode .preset-name-input:focus {
+      border-color: #60A5FA;
+    }
+    .dark-mode .preset-preview {
+      background: #374151;
+    }
+    .dark-mode .preset-preview-title {
+      color: #9CA3AF;
+    }
+    .dark-mode .preset-preview-item {
+      color: #D1D5DB;
+    }
+    .dark-mode .preset-preview-count {
+      color: #60A5FA;
+    }
+    .dark-mode .preset-modal-btn.cancel {
+      background: #374151;
+      border-color: #4B5563;
+      color: #D1D5DB;
+    }
+    .dark-mode .preset-modal-btn.cancel:hover {
+      background: #4B5563;
+    }
+    .dark-mode .preset-context-menu {
+      background: #1F2937;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    }
+    .dark-mode .preset-context-item {
+      color: #D1D5DB;
+    }
+    .dark-mode .preset-context-item:hover {
+      background: #374151;
+    }
+    .dark-mode .preset-context-item.danger {
+      color: #F87171;
+    }
+    .dark-mode .preset-context-item.danger:hover {
+      background: rgba(239, 68, 68, 0.2);
+    }
+    
+    /* Filter Controls - Dark Mode */
+    .dark-mode .filter-input,
+    .dark-mode .filter-select {
+      background: #374151;
+      border-color: #4B5563;
+      color: #F3F4F6;
+    }
+    .dark-mode .filter-btn {
+      background: #374151;
+      border-color: #4B5563;
+      color: #F3F4F6;
+    }
+    .dark-mode .filter-btn:hover {
+      background: #4B5563;
+    }
+    
+    /* Job Column - Dark Mode */
+    .dark-mode .job-column {
+      border-color: #3B82F6;
+      background: #1F2937;
+    }
+    .dark-mode .column-header {
+      background: #1F2937;
+    }
+    .dark-mode .column-title { color: #60A5FA; }
+    .dark-mode .column-content {
+      background: #1F2937;
+    }
+    
+    /* Column Scrollbar - Dark Mode */
+    .dark-mode .column-content::-webkit-scrollbar-track {
+      background: #1F2937;
+    }
+    .dark-mode .column-content::-webkit-scrollbar-thumb {
+      background: #4B5563;
+      border: 2px solid #1F2937;
+    }
+    .dark-mode .column-content::-webkit-scrollbar-thumb:hover {
+      background: #6B7280;
+    }
+    .dark-mode .column-content {
+      scrollbar-color: #4B5563 #1F2937;
+    }
+    
+    /* Job Cards - Dark Mode */
+    .dark-mode .job-card { 
+      background: #374151; 
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    }
+    .dark-mode .applicant-counter {
+      color: #9CA3AF;
+    }
+    .dark-mode .job-title { color: #FFFFFF; font-weight: 800; }
+    .dark-mode .company-name { color: #D1D5DB; font-weight: 600; }
+    .dark-mode .timestamp { color: #9CA3AF; }
+    .dark-mode .icon-indicator { color: #9CA3AF; }
+    .dark-mode .twitter-link { color: #9CA3AF; }
+    .dark-mode .twitter-link:hover { color: #60A5FA; }
+    .dark-mode .icon-separator { background-color: #6B7280; }
+    .dark-mode .location-tooltip {
+      background: #374151;
+      border: 1px solid #4B5563;
+    }
+    .dark-mode .location-tooltip::after {
+      border-top-color: #374151;
+    }
+    .dark-mode .company-logo {
+      background: #4B5563;
+      border-color: #6B7280;
+    }
+    
+    /* Buttons - Dark Mode */
+    .dark-mode .action-button.quick-apply {
+      background-color: #3B82F6;
+    }
+    .dark-mode .action-button.quick-apply:hover {
+      background-color: #2563EB;
+    }
+    .dark-mode .icon-button { color: #9CA3AF; }
+    .dark-mode .icon-button:hover {
+      background-color: #4B5563;
+      color: #60A5FA;
+    }
+    
+    /* Active Applications Bar - Dark Mode */
+    .dark-mode .active-applications-bar {
+      background: #1F2937;
+      border-bottom-color: #374151;
+    }
+    .dark-mode .active-applications-title { color: #F3F4F6; }
+    .dark-mode .active-applications-count { 
+      background: #374151;
+      color: #D1D5DB;
+    }
+    .dark-mode .active-application-card {
+      background: #374151;
+      border-color: #4B5563;
+    }
+    .dark-mode .active-application-card.applying {
+      border-color: #F59E0B;
+    }
+    .dark-mode .active-application-title { color: #F3F4F6; }
+    .dark-mode .active-application-company { color: #9CA3AF; }
+    
+    /* Modals - Dark Mode */
+    .dark-mode .modal-content { background: #1F2937; }
+    .dark-mode .modal-header { border-bottom-color: #374151; }
+    .dark-mode .modal-header h2 { color: #F3F4F6; }
+    .dark-mode .unapply-modal-content { background: #1F2937; }
+    .dark-mode .unapply-modal-title { color: #F3F4F6; }
+    .dark-mode .unapply-modal-text { color: #D1D5DB; }
+    .dark-mode .unapply-modal-cancel { 
+      background: #374151; 
+      color: #F3F4F6;
+    }
+    .dark-mode .unapply-modal-cancel:hover { background: #4B5563; }
+    
+    /* Filter Modal - Dark Mode */
+    .dark-mode .filter-modal {
+      background: #1F2937;
+    }
+    .dark-mode .filter-modal-title { color: #F3F4F6; }
+    .dark-mode .filter-modal-close { color: #9CA3AF; }
+    .dark-mode .filter-modal-close:hover { background: #374151; }
+    .dark-mode .filter-tab {
+      background: #374151;
+      color: #D1D5DB;
+    }
+    .dark-mode .filter-tab.active {
+      background: #4B5563;
+      color: #F3F4F6;
+    }
+    .dark-mode .filter-search-input {
+      background: #374151;
+      border-color: #4B5563;
+      color: #F3F4F6;
+    }
+    .dark-mode .filter-section-title { color: #F3F4F6; }
+    .dark-mode .filter-select-all-btn {
+      background: #374151;
+      color: #D1D5DB;
+    }
+    .dark-mode .filter-select-all-btn:hover {
+      background: #4B5563;
+    }
+    .dark-mode .filter-pill.unselected {
+      background: #374151;
+      border-color: #4B5563;
+      color: #9CA3AF;
+    }
+    .dark-mode .filter-pill.selected {
+      background: #1F2937;
+      border-color: #3B82F6;
+      color: #60A5FA;
+    }
+    .dark-mode .filter-secondary-btn {
+      background: #374151;
+      color: #D1D5DB;
+    }
+    
+    /* Form Elements - Dark Mode */
+    .dark-mode .form-group label { color: #F3F4F6; }
+    .dark-mode .form-group input,
+    .dark-mode .form-group select,
+    .dark-mode .form-group textarea {
+      background: #374151;
+      border-color: #4B5563;
+      color: #F3F4F6;
+    }
+    .dark-mode .cancel-button {
+      background-color: #374151;
+      color: #F3F4F6;
+    }
+    .dark-mode .cancel-button:hover {
+      background-color: #4B5563;
+    }
+    @media (max-width: 1024px) {
+      .kanban-board { flex-direction: column; }
+      .job-column { margin: 0 0 24px 0; }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    const getLogoUrl = (companyName) => {
+      // Map company names to local logo files - ALL LOCAL LOGOS
+      const logoMap = {
+        'KFC': 'logos/kfc.png.png',
+        'Papa Johns': 'logos/papajohns.png.png',
+        "Papa John's": 'logos/papajohns.png.png',
+        'Taco Bell': 'logos/tacobell.png.png',
+        'Chipotle': 'logos/chipotle.png.png',
+        "Wendy's": 'logos/wendys.png.png',
+        'Wendys': 'logos/wendys.png.png',
+        'White Castle': 'logos/whitecastle.png.png',
+        'McDonalds': 'logos/mcdonalds.png.png',
+        "McDonald's": 'logos/mcdonalds.png.png',
+        'Chick-fil-A': 'logos/chickfila.png.png',
+        'Chick-fil-a': 'logos/chickfila.png.png',
+        'Pizza Hut': 'logos/pizzahut.png.png',
+        'Whataburger': 'logos/whataburger.png.png',
+        'Burger King': 'logos/burgerking.png',
+        'Subway': 'logos/subway.png.png',
+        'Dunkin': 'logos/dunkindonuts.png.png',
+        "Dunkin'": 'logos/dunkindonuts.png.png',
+        'Panera Bread': 'logos/panerabread.png.png',
+        'Olive Garden': 'logos/olivegarden.png.png',
+        'Applebees': "logos/applebee's.png.png",
+        "Applebee's": "logos/applebee's.png.png",
+        'Texas Roadhouse': 'logos/TexasRoadhouse.png.png',
+        'Five Guys': 'logos/fiveguys.png.png',
+        'Shake Shack': 'logos/shakeshack.png.png',
+        'Carls Jr': 'logos/carlsjr.png.png',
+        "Carl's Jr": 'logos/carlsjr.png.png',
+        "Carl's Jr.": 'logos/carlsjr.png.png',
+        'Hardees': "logos/hardee's.png.png",
+        "Hardee's": "logos/hardee's.png.png",
+        'In-N-Out': 'logos/innout.png.png',
+        'Red Lobster': 'logos/redlobster.png.png',
+        'Outback': 'logos/outback.png.png',
+        'Buffalo Wild Wings': 'logos/buffalowildwings.png.png',
+        'Jack in the Box': 'logos/JackInTheBox.png',
+        'Sonic': 'logos/sonic.png.png',
+      };
+      
+      if (logoMap[companyName]) {
+        return logoMap[companyName];
+      }
+      // Fallback to avatar API for unknown companies
+      return `https://ui-avatars.com/api/?name=${encodeURIComponent(companyName)}&background=random&size=64&bold=true`;
+    };
+
+    const getTimeAgo = (date) => {
+      const now = new Date();
+      const diffInMs = now.getTime() - date.getTime();
+      const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
+      const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
+      const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+      if (diffInMinutes < 1) return 'Just now';
+      if (diffInMinutes < 60) return `Posted ${diffInMinutes} ${diffInMinutes === 1 ? 'Minute' : 'Minutes'} Ago`;
+      if (diffInHours < 24) return `Posted ${diffInHours} ${diffInHours === 1 ? 'Hour' : 'Hours'} Ago`;
+      return `Posted ${diffInDays} ${diffInDays === 1 ? 'Day' : 'Days'} Ago`;
+    };
+
+    const getTimeAgoDate = (minutesAgo) => {
+      const date = new Date();
+      date.setMinutes(date.getMinutes() - minutesAgo);
+      return date;
+    };
+
+    // Twitter/X URLs for all companies
+    const TWITTER_URLS = {
+      "Applebee's": 'https://twitter.com/Applebees',
+      'Applebees': 'https://twitter.com/Applebees',
+      'Buffalo Wild Wings': 'https://twitter.com/BWWings',
+      'Burger King': 'https://twitter.com/BurgerKing',
+      "Carl's Jr": 'https://twitter.com/CarlsJr',
+      "Carl's Jr.": 'https://twitter.com/CarlsJr',
+      'Carls Jr': 'https://twitter.com/CarlsJr',
+      'Chick-fil-A': 'https://twitter.com/ChickfilA',
+      'Chick-fil-a': 'https://twitter.com/ChickfilA',
+      'Chipotle': 'https://twitter.com/ChipotleTweets',
+      "Dunkin'": 'https://twitter.com/DunkinDonuts',
+      'Dunkin': 'https://twitter.com/DunkinDonuts',
+      'Five Guys': 'https://twitter.com/FiveGuys',
+      "Hardee's": 'https://twitter.com/Hardees',
+      'Hardees': 'https://twitter.com/Hardees',
+      'In-N-Out': 'https://twitter.com/innout',
+      'Jack in the Box': 'https://twitter.com/JackBox',
+      'KFC': 'https://twitter.com/kfc',
+      "McDonald's": 'https://twitter.com/McDonalds',
+      'McDonalds': 'https://twitter.com/McDonalds',
+      'Olive Garden': 'https://twitter.com/olivegarden',
+      'Outback': 'https://twitter.com/Outback',
+      'Panera Bread': 'https://twitter.com/panerabread',
+      "Papa John's": 'https://twitter.com/PapaJohns',
+      'Papa Johns': 'https://twitter.com/PapaJohns',
+      'Pizza Hut': 'https://twitter.com/pizzahut',
+      'Red Lobster': 'https://twitter.com/RedLobster',
+      'Shake Shack': 'https://twitter.com/shakeshack',
+      'Sonic': 'https://twitter.com/sonicdrivein',
+      'Subway': 'https://twitter.com/SUBWAY',
+      'Taco Bell': 'https://twitter.com/tacobell',
+      'Texas Roadhouse': 'https://twitter.com/texasroadhouse',
+      "Wendy's": 'https://twitter.com/Wendys',
+      'Wendys': 'https://twitter.com/Wendys',
+      'Whataburger': 'https://twitter.com/Whataburger',
+      'White Castle': 'https://twitter.com/WhiteCastle',
+    };
+
+    // All 50 US States
+    const US_STATES = [
+      'Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California',
+      'Colorado', 'Connecticut', 'Delaware', 'Florida', 'Georgia',
+      'Hawaii', 'Idaho', 'Illinois', 'Indiana', 'Iowa',
+      'Kansas', 'Kentucky', 'Louisiana', 'Maine', 'Maryland',
+      'Massachusetts', 'Michigan', 'Minnesota', 'Mississippi', 'Missouri',
+      'Montana', 'Nebraska', 'Nevada', 'New Hampshire', 'New Jersey',
+      'New Mexico', 'New York', 'North Carolina', 'North Dakota', 'Ohio',
+      'Oklahoma', 'Oregon', 'Pennsylvania', 'Rhode Island', 'South Carolina',
+      'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont',
+      'Virginia', 'Washington', 'West Virginia', 'Wisconsin', 'Wyoming'
+    ];
+
+    const getRandomState = () => US_STATES[Math.floor(Math.random() * US_STATES.length)];
+
+    const getTwitterUrl = (company) => TWITTER_URLS[company] || 'https://twitter.com';
+
+    const sampleJobs = [
+      { id: '1', title: 'Dishwasher', company: 'Chipotle', logoUrl: getLogoUrl('Chipotle'), status: 'new', postedDate: getTimeAgoDate(2), twitterUrl: getTwitterUrl('Chipotle'), location: getRandomState() },
+      { id: '2', title: 'Overnight Crew', company: 'McDonalds', logoUrl: getLogoUrl('McDonalds'), status: 'new', postedDate: getTimeAgoDate(7), twitterUrl: getTwitterUrl('McDonalds'), location: getRandomState() },
+      { id: '3', title: 'Team Member', company: 'KFC', logoUrl: getLogoUrl('KFC'), status: 'new', postedDate: getTimeAgoDate(35), twitterUrl: getTwitterUrl('KFC'), location: getRandomState() },
+      { id: '4', title: 'Drive Through', company: "Wendy's", logoUrl: getLogoUrl("Wendy's"), status: 'new', postedDate: getTimeAgoDate(120), twitterUrl: getTwitterUrl("Wendy's"), location: getRandomState() },
+      { id: '5', title: 'Sanitation', company: 'Taco Bell', logoUrl: getLogoUrl('Taco Bell'), status: 'new', postedDate: getTimeAgoDate(180), twitterUrl: getTwitterUrl('Taco Bell'), location: getRandomState() },
+      { id: '6', title: 'Customer Service', company: "Chick-fil-A", logoUrl: getLogoUrl('Chick-fil-A'), status: 'new', postedDate: getTimeAgoDate(8), twitterUrl: getTwitterUrl('Chick-fil-A'), location: getRandomState() },
+      { id: '7', title: 'Cashier', company: 'Burger King', logoUrl: getLogoUrl('Burger King'), status: 'new', postedDate: getTimeAgoDate(21), twitterUrl: getTwitterUrl('Burger King'), location: getRandomState() },
+      { id: '8', title: 'Pizza Chef', company: "Papa John's", logoUrl: getLogoUrl("Papa John's"), status: 'new', postedDate: getTimeAgoDate(25), twitterUrl: getTwitterUrl("Papa John's"), location: getRandomState() },
+      { id: '9', title: 'Mobile Orders', company: 'Whataburger', logoUrl: getLogoUrl('Whataburger'), status: 'new', postedDate: getTimeAgoDate(42), twitterUrl: getTwitterUrl('Whataburger'), location: getRandomState() },
+      { id: '10', title: 'Fry Cook', company: 'McDonalds', logoUrl: getLogoUrl('McDonalds'), status: 'new', postedDate: getTimeAgoDate(48), twitterUrl: getTwitterUrl('McDonalds'), location: getRandomState() },
+      { id: '11', title: 'Crew Member', company: 'White Castle', logoUrl: getLogoUrl('White Castle'), status: 'new', postedDate: getTimeAgoDate(35), twitterUrl: getTwitterUrl('White Castle'), location: getRandomState() },
+      { id: '12', title: 'Delivery Driver', company: 'Pizza Hut', logoUrl: getLogoUrl('Pizza Hut'), status: 'new', postedDate: getTimeAgoDate(39), twitterUrl: getTwitterUrl('Pizza Hut'), location: getRandomState() },
+      { id: '13', title: 'Line Cook', company: 'In-N-Out', logoUrl: getLogoUrl('In-N-Out'), status: 'new', postedDate: getTimeAgoDate(48), twitterUrl: getTwitterUrl('In-N-Out'), location: getRandomState() },
+      { id: '14', title: 'Cashier', company: 'Chipotle', logoUrl: getLogoUrl('Chipotle'), status: 'new', postedDate: getTimeAgoDate(60), twitterUrl: getTwitterUrl('Chipotle'), location: getRandomState() },
+      { id: '15', title: 'Assistant Manager', company: 'KFC', logoUrl: getLogoUrl('KFC'), status: 'new', postedDate: getTimeAgoDate(120), twitterUrl: getTwitterUrl('KFC'), location: getRandomState() },
+    ];
+
+    const saveJobsToStorage = (jobs) => {
+      try {
+        localStorage.setItem('linkedin-scope-jobs', JSON.stringify(jobs.map(job => ({
+          ...job,
+          postedDate: job.postedDate.toISOString(),
+          appliedDate: job.appliedDate?.toISOString(),
+          twitterUrl: job.twitterUrl,
+          location: job.location,
+        }))));
+      } catch (error) {
+        console.error('Failed to save jobs:', error);
+      }
+    };
+
+    const loadJobsFromStorage = () => {
+      try {
+        const serialized = localStorage.getItem('linkedin-scope-jobs');
+        if (!serialized) return [];
+        const parsed = JSON.parse(serialized);
+        return parsed.map(job => ({
+          ...job,
+          postedDate: new Date(job.postedDate),
+          appliedDate: job.appliedDate ? new Date(job.appliedDate) : undefined,
+          twitterUrl: job.twitterUrl || getTwitterUrl(job.company),
+          location: job.location || getRandomState(),
+        }));
+      } catch (error) {
+        console.error('Failed to load jobs:', error);
+        return [];
+      }
+    };
+
+    const JobCard = ({ job, onHide, onQuickApply, onDragStart, onDragEnd, isDragging, isApplying }) => {
+      const isApplied = job.status === 'applied';
+      const buttonClass = isApplying ? 'applying' : (isApplied ? 'applied' : 'quick-apply');
+      const buttonDisabled = isApplying || isApplied;
+
+      const handleTwitterClick = (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        const twitterUrl = job.twitterUrl || getTwitterUrl(job.company);
+        window.open(twitterUrl, '_blank', 'noopener,noreferrer');
+      };
+      
+      return (
+        <div
+          className={`job-card ${isDragging ? 'dragging' : ''}`}
+          draggable
+          onDragStart={(e) => {
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', job.id);
+            onDragStart(job.id);
+          }}
+          onDragEnd={onDragEnd}
+        >
+          {/* Applicant counter - top right */}
+          <div className="applicant-counter">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
+              <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+            </svg>
+            <span>{job.applicantCount || Math.floor(Math.random() * 150) + 10}</span>
+          </div>
+          
+          <div className="job-card-content">
+            <div className="job-card-header">
+              <img 
+                src={job.logoUrl} 
+                alt={job.company} 
+                className="company-logo" 
+                onError={(e) => {
+                  e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(job.company)}&background=random&size=64&bold=true`;
+                }}
+              />
+              <div className="job-card-info">
+                <h3 className="job-title">{job.title}</h3>
+                <p className="company-name">{job.company}</p>
+                <div className="meta-row">
+                  {/* Twitter/X icon - CLICKABLE */}
+                  <span 
+                    className="twitter-link" 
+                    onClick={handleTwitterClick}
+                    title={`View on X`}
+                  >
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                  </span>
+                  <span className="icon-separator"></span>
+                  {/* Location icon - HOVER TOOLTIP ONLY */}
+                  <span className="location-wrapper">
+                    <span className="icon-indicator">
+                      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                    </span>
+                    <span className="location-tooltip">{job.location || 'Unknown'}</span>
+                  </span>
+                  <p className="timestamp">{getTimeAgo(job.postedDate)}</p>
+                </div>
+              </div>
+            </div>
+            <div className="job-card-footer">
+              <button
+                className={`action-button ${buttonClass}`}
+                onClick={() => !buttonDisabled && onQuickApply(job)}
+                disabled={buttonDisabled}
+              >
+                {isApplying && <span className="spinner"></span>}
+                {isApplying ? 'Applying...' : (isApplied ? 'Applied' : 'Quick Apply')}
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    const JobColumn = ({ id, title, jobs, onHide, onQuickApply, onOpenFilter, activeFilterCount, onDrop, onDragOver, onDragLeave, isDragOver, applyingJobs }) => {
+      return (
+        <div className="job-column">
+          <div className="column-header">
+            <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px'}}>
+              <h2 className="column-title">{title}</h2>
+              <button className="filter-btn" onClick={onOpenFilter}>
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z"/></svg>
+                Filter {jobs.length}
+                {activeFilterCount > 0 && <span className="filter-badge">{activeFilterCount}</span>}
+              </button>
+            </div>
+          </div>
+          <div
+            className={`column-content ${isDragOver ? 'drag-over' : ''}`}
+            onDrop={onDrop}
+            onDragOver={onDragOver}
+            onDragLeave={onDragLeave}
+          >
+            {jobs.map((job) => (
+              <JobCard
+                key={job.id}
+                job={job}
+                onHide={onHide}
+                onQuickApply={onQuickApply}
+                onDragStart={(jobId) => {}}
+                onDragEnd={() => {}}
+                isDragging={false}
+                isApplying={applyingJobs?.includes(job.id)}
+              />
+            ))}
+            {jobs.length === 0 && (
+              <div className="empty-column"><p>No jobs found</p></div>
+            )}
+          </div>
+        </div>
+      );
+    };
+
+    const JobModal = ({ job, isOpen, onClose, onSave }) => {
+      const [formData, setFormData] = useState({
+        title: job?.title || '',
+        company: job?.company || '',
+        status: job?.status || 'new',
+        jobUrl: job?.jobUrl || '',
+        notes: job?.notes || '',
+      });
+
+      useEffect(() => {
+        if (job) {
+          setFormData({
+            title: job.title,
+            company: job.company,
+            status: job.status,
+            jobUrl: job.jobUrl || '',
+            notes: job.notes || '',
+          });
+        } else {
+          setFormData({ title: '', company: '', status: 'new', jobUrl: '', notes: '' });
+        }
+      }, [job, isOpen]);
+
+      if (!isOpen) return null;
+
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        onSave({
+          ...(job && { id: job.id }),
+          ...formData,
+          logoUrl: job?.logoUrl || getLogoUrl(formData.company),
+          postedDate: job?.postedDate || new Date(),
+          jobUrl: formData.jobUrl || undefined,
+          notes: formData.notes || undefined,
+        });
+        onClose();
+      };
+
+      return (
+        <div className="modal-overlay" onClick={onClose}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>{job ? 'Edit Job' : 'Add New Job'}</h2>
+              <button className="close-button" onClick={onClose}>×</button>
+            </div>
+            <form onSubmit={handleSubmit} className="job-form">
+              <div className="form-group">
+                <label htmlFor="title">Job Title *</label>
+                <input id="title" type="text" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} required />
+              </div>
+              <div className="form-group">
+                <label htmlFor="company">Company Name *</label>
+                <input id="company" type="text" value={formData.company} onChange={(e) => setFormData({ ...formData, company: e.target.value })} required />
+              </div>
+              <div className="form-group">
+                <label htmlFor="status">Status *</label>
+                <select id="status" value={formData.status} onChange={(e) => setFormData({ ...formData, status: e.target.value })} required>
+                  <option value="new">New Job Listing</option>
+                  <option value="in-progress">Application In Progress</option>
+                  <option value="applied">Applied For</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label htmlFor="jobUrl">Job URL</label>
+                <input id="jobUrl" type="url" value={formData.jobUrl} onChange={(e) => setFormData({ ...formData, jobUrl: e.target.value })} placeholder="https://..." />
+              </div>
+              <div className="form-group">
+                <label htmlFor="notes">Notes</label>
+                <textarea id="notes" value={formData.notes} onChange={(e) => setFormData({ ...formData, notes: e.target.value })} rows={4} placeholder="Add any notes about this job..." />
+              </div>
+              <div className="form-actions">
+                <button type="button" className="cancel-button" onClick={onClose}>Cancel</button>
+                <button type="submit" className="save-button">{job ? 'Update' : 'Add'} Job</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      );
+    };
+
+    const ActiveApplicationsBar = ({ jobs, onUnapply, applyingJobs = [] }) => {
+      const [unapplyJob, setUnapplyJob] = useState(null);
+      
+      // Get applied jobs and applying jobs
+      const appliedJobs = jobs
+        .filter(job => job.status === 'applied' && !job.hidden)
+        .sort((a, b) => (b.appliedDate || b.postedDate) - (a.appliedDate || a.postedDate));
+      
+      const currentlyApplying = jobs
+        .filter(job => applyingJobs.includes(job.id) && !job.hidden);
+      
+      const allActiveJobs = [...currentlyApplying, ...appliedJobs];
+      
+      const getAppliedTimeAgo = (job) => {
+        if (applyingJobs.includes(job.id)) return 'Applying...';
+        const date = job.appliedDate || job.postedDate;
+        const now = new Date();
+        const diffInMs = now.getTime() - date.getTime();
+        const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
+        const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
+        const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+        if (diffInMinutes < 60) return `Applied ${diffInMinutes}m ago`;
+        if (diffInHours < 24) return `Applied ${diffInHours}h ago`;
+        return `Applied ${diffInDays}d ago`;
+      };
+      
+      const handleConfirmUnapply = () => {
+        if (unapplyJob) {
+          onUnapply(unapplyJob.id, unapplyJob.isApplying);
+          setUnapplyJob(null);
+        }
+      };
+      
+      return (
+        <div className="active-applications-bar">
+          <div className="active-applications-header">
+            <h3 className="active-applications-title">Active Applications</h3>
+            <span className="active-applications-count">{allActiveJobs.length} active</span>
+          </div>
+          <div className="active-applications-scroll-container">
+            <div className="active-applications-scroll">
+              {allActiveJobs.length === 0 ? (
+                <p className="active-applications-empty">No active applications yet. Start applying!</p>
+              ) : (
+                allActiveJobs.map(job => (
+                  <div key={job.id} className={`active-application-card ${applyingJobs.includes(job.id) ? 'applying' : ''}`}>
+                    <img 
+                      src={job.logoUrl} 
+                      alt={job.company} 
+                      className="active-application-logo"
+                      onError={(e) => {
+                        e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(job.company)}&background=random&size=64&bold=true`;
+                      }}
+                    />
+                    <div className="active-application-info">
+                      <p className="active-application-title">{job.title}</p>
+                      <p className="active-application-company">
+                        {applyingJobs.includes(job.id) ? 'Applying...' : job.company}
+                      </p>
+                    </div>
+                    {/* Trash can visible in BOTH applying and applied states */}
+                    <button 
+                      className="active-application-trash"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setUnapplyJob({...job, isApplying: applyingJobs.includes(job.id)});
+                      }}
+                      title={applyingJobs.includes(job.id) ? "Cancel application" : "Unapply"}
+                    >
+                      <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                      </svg>
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+          
+          {/* Unapply/Cancel Confirmation Modal */}
+          {unapplyJob && (
+            <div className="modal-overlay" onClick={() => setUnapplyJob(null)}>
+              <div className="unapply-modal-content" onClick={(e) => e.stopPropagation()}>
+                <div className="unapply-modal-icon">
+                  <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                  </svg>
+                </div>
+                <h3 className="unapply-modal-title">{unapplyJob.isApplying ? 'Cancel application?' : 'Unapply from this job?'}</h3>
+                <p className="unapply-modal-text">
+                  {unapplyJob.isApplying 
+                    ? <>Are you sure you want to cancel your application to <strong>{unapplyJob.title}</strong> at <strong>{unapplyJob.company}</strong>?</>
+                    : <>Are you sure you want to unapply from <strong>{unapplyJob.title}</strong> at <strong>{unapplyJob.company}</strong>?</>
+                  }
+                </p>
+                <div className="unapply-modal-actions">
+                  <button className="unapply-modal-cancel" onClick={() => setUnapplyJob(null)}>Cancel</button>
+                  <button className="unapply-modal-confirm" onClick={handleConfirmUnapply}>{unapplyJob.isApplying ? 'Cancel Application' : 'Unapply'}</button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    };
+
+    const COLUMNS = [
+      { id: 'new', title: 'NEW JOB LISTINGS' },
+      { id: 'in-progress', title: 'APPLICATION IN PROGRESS' },
+      { id: 'applied', title: 'APPLIED FOR' },
+    ];
+
+    const JOB_TITLES = [
+      'Server', 'Host', 'Bartender', 'Line Cook', 'Prep Cook', 'Dishwasher', 'Busser', 'Cashier',
+      'Drive-Thru', 'Kitchen Staff', 'Food Runner', 'Barista', 'Shift Manager', 'Crew Member',
+      'Team Member', 'Customer Service', 'Front Counter', 'Back of House', 'Grill Cook', 'Fry Cook'
+    ];
+
+    const COMPANIES = [
+      'McDonalds', 'Burger King', "Wendy's", 'Taco Bell', 'KFC', 'Subway', 'Pizza Hut',
+      "Papa John's", 'Chipotle', "Chick-fil-A", 'Dunkin', 'Panera Bread', 'Olive Garden',
+      'Red Lobster', "Applebee's", 'Outback', 'Texas Roadhouse', 'Buffalo Wild Wings',
+      'Five Guys', 'In-N-Out', 'Whataburger', 'White Castle', 'Shake Shack',
+      'Jack in the Box', "Carl's Jr.", "Hardee's", 'Sonic'
+    ];
+
+    // Use the full state names for filters (matches job.location)
+
+    const FilterModal = ({ isOpen, onClose, filters, onApplyFilters }) => {
+      const [activeTab, setActiveTab] = useState('companies');
+      const [selectedCompanies, setSelectedCompanies] = useState(filters.companies || []);
+      const [selectedLocations, setSelectedLocations] = useState(filters.locations || []);
+      const [selectedJobTypes, setSelectedJobTypes] = useState(filters.jobTypes || []);
+      const [searchKeywords, setSearchKeywords] = useState('');
+      const [excludeKeywords, setExcludeKeywords] = useState('');
+
+      useEffect(() => {
+        if (isOpen) {
+          setSelectedCompanies(filters.companies || []);
+          setSelectedLocations(filters.locations || []);
+          setSelectedJobTypes(filters.jobTypes || []);
+        }
+      }, [isOpen, filters]);
+
+      if (!isOpen) return null;
+
+      const toggleItem = (item, selected, setSelected) => {
+        if (selected.includes(item)) {
+          setSelected(selected.filter(i => i !== item));
+        } else {
+          setSelected([...selected, item]);
+        }
+      };
+
+      const selectAll = (items, setSelected) => setSelected([...items]);
+      const unselectAll = (setSelected) => setSelected([]);
+
+      const handleApply = () => {
+        onApplyFilters({
+          companies: selectedCompanies,
+          locations: selectedLocations,
+          jobTypes: selectedJobTypes,
+          searchKeywords: searchKeywords.split(',').map(k => k.trim()).filter(k => k),
+          excludeKeywords: excludeKeywords.split(',').map(k => k.trim()).filter(k => k)
+        });
+        onClose();
+      };
+
+      const totalFilters = selectedCompanies.length + selectedLocations.length + selectedJobTypes.length;
+
+      return (
+        <div className="filter-modal-overlay" onClick={onClose}>
+          <div className="filter-modal" onClick={e => e.stopPropagation()}>
+            <div className="filter-modal-header">
+              <h2 className="filter-modal-title">Filters</h2>
+              <button className="filter-modal-close" onClick={onClose}>
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+              </button>
+            </div>
+            
+            <div className="filter-tabs">
+              <button className={`filter-tab ${activeTab === 'companies' ? 'active' : ''}`} onClick={() => setActiveTab('companies')}>
+                Companies <span className="filter-tab-badge">{selectedCompanies.length}</span>
+              </button>
+              <button className={`filter-tab ${activeTab === 'locations' ? 'active' : ''}`} onClick={() => setActiveTab('locations')}>
+                Locations <span className="filter-tab-badge">{selectedLocations.length}</span>
+              </button>
+              <button className={`filter-tab ${activeTab === 'jobTypes' ? 'active' : ''}`} onClick={() => setActiveTab('jobTypes')}>
+                Job Types <span className="filter-tab-badge">{selectedJobTypes.length}</span>
+              </button>
+            </div>
+
+            <div className="filter-search-row">
+              <input 
+                className="filter-search-input" 
+                placeholder="Search keywords..." 
+                value={searchKeywords}
+                onChange={e => setSearchKeywords(e.target.value)}
+              />
+              <input 
+                className="filter-search-input" 
+                placeholder="Exclude keywords..." 
+                value={excludeKeywords}
+                onChange={e => setExcludeKeywords(e.target.value)}
+              />
+            </div>
+
+            <div className="filter-content">
+              {activeTab === 'companies' && (
+                <>
+                  <div className="filter-section-header">
+                    <h3 className="filter-section-title">Companies</h3>
+                    <div style={{display: 'flex', gap: '8px'}}>
+                      <button className="filter-select-all-btn" onClick={() => selectAll(COMPANIES, setSelectedCompanies)}>Select All</button>
+                      <button className="filter-select-all-btn" onClick={() => unselectAll(setSelectedCompanies)}>Clear</button>
+                    </div>
+                  </div>
+                  <div className="filter-pills">
+                    {COMPANIES.map(company => (
+                      <button
+                        key={company}
+                        className={`filter-pill ${selectedCompanies.includes(company) ? 'selected' : 'unselected'}`}
+                        onClick={() => toggleItem(company, selectedCompanies, setSelectedCompanies)}
+                      >
+                        <img src={getLogoUrl(company)} alt="" className="filter-pill-logo" onError={e => e.target.style.display='none'} />
+                        {company}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+
+              {activeTab === 'locations' && (
+                <>
+                  <div className="filter-section-header">
+                    <h3 className="filter-section-title">US States</h3>
+                    <div style={{display: 'flex', gap: '8px'}}>
+                      <button className="filter-select-all-btn" onClick={() => selectAll(US_STATES, setSelectedLocations)}>Select All</button>
+                      <button className="filter-select-all-btn" onClick={() => unselectAll(setSelectedLocations)}>Clear</button>
+                    </div>
+                  </div>
+                  <div className="filter-pills">
+                    {US_STATES.map(state => (
+                      <button
+                        key={state}
+                        className={`filter-pill ${selectedLocations.includes(state) ? 'selected' : 'unselected'}`}
+                        onClick={() => toggleItem(state, selectedLocations, setSelectedLocations)}
+                      >
+                        {state}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+
+              {activeTab === 'jobTypes' && (
+                <>
+                  <div className="filter-section-header">
+                    <h3 className="filter-section-title">Job Types</h3>
+                    <div style={{display: 'flex', gap: '8px'}}>
+                      <button className="filter-select-all-btn" onClick={() => selectAll(JOB_TITLES, setSelectedJobTypes)}>Select All</button>
+                      <button className="filter-select-all-btn" onClick={() => unselectAll(setSelectedJobTypes)}>Clear</button>
+                    </div>
+                  </div>
+                  <div className="filter-pills">
+                    {JOB_TITLES.map(jobType => (
+                      <button
+                        key={jobType}
+                        className={`filter-pill ${selectedJobTypes.includes(jobType) ? 'selected' : 'unselected'}`}
+                        onClick={() => toggleItem(jobType, selectedJobTypes, setSelectedJobTypes)}
+                      >
+                        {jobType}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+
+            <div className="filter-modal-footer" style={{justifyContent: 'flex-end'}}>
+              <button className="filter-apply-btn" onClick={handleApply}>
+                Apply Filters {totalFilters > 0 && `(${totalFilters})`}
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    const generateRandomJob = () => {
+      const title = JOB_TITLES[Math.floor(Math.random() * JOB_TITLES.length)];
+      const company = COMPANIES[Math.floor(Math.random() * COMPANIES.length)];
+      return {
+        id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+        title,
+        company,
+        logoUrl: getLogoUrl(company),
+        status: 'new',
+        postedDate: new Date(),
+        twitterUrl: getTwitterUrl(company),
+        location: getRandomState(),
+      };
+    };
+
+    const App = () => {
+      const [jobs, setJobs] = useState([]);
+      const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+      // Default: ALL filters selected (shows all jobs)
+      const [activeFilters, setActiveFilters] = useState(() => {
+        const saved = localStorage.getItem('linkedin-scope-filters');
+        if (saved) {
+          return JSON.parse(saved);
+        }
+        // Default to ALL selected
+        return { 
+          companies: [...COMPANIES], 
+          locations: [...US_STATES], 
+          jobTypes: [...JOB_TITLES], 
+          searchKeywords: [], 
+          excludeKeywords: [] 
+        };
+      });
+      const [applyingJobs, setApplyingJobs] = useState([]);
+      const [applyTimeouts, setApplyTimeouts] = useState({}); // Track timeout IDs
+      const [caApplyState, setCaApplyState] = useState('idle'); // 'idle' | 'applying' | 'applied'
+      const [isDarkMode, setIsDarkMode] = useState(() => {
+        const saved = localStorage.getItem('linkedin-scope-dark-mode');
+        return saved ? JSON.parse(saved) : false;
+      });
+      const [draggedJobId, setDraggedJobId] = useState(null);
+      const [dragOverColumn, setDragOverColumn] = useState(null);
+      const [selectedResume, setSelectedResume] = useState('Resume 1');
+      
+      // Presets state
+      const [presets, setPresets] = useState(() => {
+        const saved = localStorage.getItem('linkedin-scope-presets');
+        return saved ? JSON.parse(saved) : { slot1: null, slot2: null, slot3: null };
+      });
+      const [activePreset, setActivePreset] = useState(() => {
+        return localStorage.getItem('linkedin-scope-active-preset') || null;
+      });
+      const [presetModal, setPresetModal] = useState({ isOpen: false, slot: null, mode: 'save' });
+      const [contextMenu, setContextMenu] = useState({ isOpen: false, slot: null, x: 0, y: 0 });
+      const [toast, setToast] = useState(null);
+      const [presetName, setPresetName] = useState('');
+
+      // Show toast notification
+      const showToast = (message) => {
+        setToast(message);
+        setTimeout(() => setToast(null), 3000);
+      };
+
+      // Save preset
+      const handleSavePreset = (slot) => {
+        const name = presetName.trim() || slot.replace('slot', 'S');
+        const newPreset = {
+          id: Date.now().toString(),
+          name,
+          filters: { ...activeFilters },
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+        const newPresets = { ...presets, [slot]: newPreset };
+        setPresets(newPresets);
+        localStorage.setItem('linkedin-scope-presets', JSON.stringify(newPresets));
+        setActivePreset(slot);
+        localStorage.setItem('linkedin-scope-active-preset', slot);
+        setPresetModal({ isOpen: false, slot: null, mode: 'save' });
+        setPresetName('');
+        showToast(`Preset ${name} saved`);
+      };
+
+      // Load preset
+      const handleLoadPreset = (slot) => {
+        const preset = presets[slot];
+        if (!preset) return;
+        setActiveFilters(preset.filters);
+        localStorage.setItem('linkedin-scope-filters', JSON.stringify(preset.filters));
+        setActivePreset(slot);
+        localStorage.setItem('linkedin-scope-active-preset', slot);
+        showToast(`Preset ${preset.name} loaded`);
+      };
+
+      // Update preset
+      const handleUpdatePreset = (slot) => {
+        const existing = presets[slot];
+        if (!existing) return;
+        const updatedPreset = {
+          ...existing,
+          filters: { ...activeFilters },
+          updatedAt: new Date().toISOString()
+        };
+        const newPresets = { ...presets, [slot]: updatedPreset };
+        setPresets(newPresets);
+        localStorage.setItem('linkedin-scope-presets', JSON.stringify(newPresets));
+        setContextMenu({ isOpen: false, slot: null, x: 0, y: 0 });
+        showToast(`Preset ${existing.name} updated`);
+      };
+
+      // Delete preset
+      const handleDeletePreset = (slot) => {
+        const preset = presets[slot];
+        const newPresets = { ...presets, [slot]: null };
+        setPresets(newPresets);
+        localStorage.setItem('linkedin-scope-presets', JSON.stringify(newPresets));
+        if (activePreset === slot) {
+          setActivePreset(null);
+          localStorage.removeItem('linkedin-scope-active-preset');
+        }
+        setPresetModal({ isOpen: false, slot: null, mode: 'save' });
+        setContextMenu({ isOpen: false, slot: null, x: 0, y: 0 });
+        showToast(`Preset ${preset?.name || slot} deleted`);
+      };
+
+      // Rename preset
+      const handleRenamePreset = (slot) => {
+        const existing = presets[slot];
+        if (!existing) return;
+        const name = presetName.trim() || existing.name;
+        const updatedPreset = { ...existing, name };
+        const newPresets = { ...presets, [slot]: updatedPreset };
+        setPresets(newPresets);
+        localStorage.setItem('linkedin-scope-presets', JSON.stringify(newPresets));
+        setPresetModal({ isOpen: false, slot: null, mode: 'save' });
+        setPresetName('');
+        showToast(`Preset renamed to ${name}`);
+      };
+
+      // Open preset modal
+      const openPresetModal = (slot, mode = 'save') => {
+        const preset = presets[slot];
+        setPresetName(preset?.name || slot.replace('slot', 'S'));
+        setPresetModal({ isOpen: true, slot, mode });
+      };
+
+      // Handle preset button click
+      const handlePresetClick = (slot) => {
+        if (presets[slot]) {
+          handleLoadPreset(slot);
+        } else {
+          openPresetModal(slot, 'save');
+        }
+      };
+
+      // Handle right-click on preset
+      const handlePresetContextMenu = (e, slot) => {
+        e.preventDefault();
+        if (!presets[slot]) return;
+        setContextMenu({ isOpen: true, slot, x: e.clientX, y: e.clientY });
+      };
+
+      // Close context menu on click outside
+      useEffect(() => {
+        const handleClickOutside = () => setContextMenu({ isOpen: false, slot: null, x: 0, y: 0 });
+        if (contextMenu.isOpen) {
+          document.addEventListener('click', handleClickOutside);
+          return () => document.removeEventListener('click', handleClickOutside);
+        }
+      }, [contextMenu.isOpen]);
+
+      useEffect(() => {
+        const savedJobs = loadJobsFromStorage();
+        if (savedJobs.length > 0) {
+          setJobs(savedJobs);
+        } else {
+          setJobs(sampleJobs);
+          saveJobsToStorage(sampleJobs);
+        }
+      }, []);
+
+      useEffect(() => {
+        const interval = setInterval(() => {
+          const newJob = generateRandomJob();
+          setJobs(prevJobs => {
+            const updated = [newJob, ...prevJobs];
+            saveJobsToStorage(updated);
+            return updated;
+          });
+        }, Math.random() * 5000 + 5000); // 5-10 seconds
+
+        return () => clearInterval(interval);
+      }, []);
+
+      useEffect(() => {
+        if (jobs.length > 0) saveJobsToStorage(jobs);
+      }, [jobs]);
+
+      useEffect(() => {
+        localStorage.setItem('linkedin-scope-dark-mode', JSON.stringify(isDarkMode));
+        document.documentElement.classList.toggle('dark-mode', isDarkMode);
+      }, [isDarkMode]);
+
+      const handleDragStart = (jobId) => {
+        setDraggedJobId(jobId);
+      };
+
+      const handleDragOver = (e, columnId) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        setDragOverColumn(columnId);
+      };
+
+      const handleDragLeave = () => {
+        setDragOverColumn(null);
+      };
+
+      const handleDrop = (e, columnId) => {
+        e.preventDefault();
+        setDragOverColumn(null);
+        if (draggedJobId) {
+          setJobs(prevJobs => prevJobs.map(job => {
+            if (job.id === draggedJobId) {
+              return {
+                ...job,
+                status: columnId,
+                appliedDate: columnId === 'applied' && !job.appliedDate ? new Date() : job.appliedDate,
+              };
+            }
+            return job;
+          }));
+          setDraggedJobId(null);
+        }
+      };
+
+      const handleHideJob = (jobId) => {
+        setJobs(prevJobs => prevJobs.map(job => 
+          job.id === jobId ? { ...job, hidden: true } : job
+        ));
+      };
+
+      const handleQuickApply = (job) => {
+        // Immediately add to applying state
+        setApplyingJobs(prev => [...prev, job.id]);
+        
+        // If new, first move to in-progress
+        if (job.status === 'new') {
+          setJobs(prevJobs => prevJobs.map(j => j.id === job.id ? { ...j, status: 'in-progress' } : j));
+        }
+        
+        // Start timer (30-45 seconds random)
+        const delay = Math.random() * 15000 + 30000; // 30-45 seconds
+        const timeoutId = setTimeout(() => {
+          // Move to applied
+          setJobs(prevJobs => prevJobs.map(j => 
+            j.id === job.id ? { ...j, status: 'applied', appliedDate: new Date() } : j
+          ));
+          // Remove from applying state
+          setApplyingJobs(prev => prev.filter(id => id !== job.id));
+          // Remove timeout ID
+          setApplyTimeouts(prev => {
+            const newTimeouts = {...prev};
+            delete newTimeouts[job.id];
+            return newTimeouts;
+          });
+        }, delay);
+        
+        // Store timeout ID so it can be cancelled
+        setApplyTimeouts(prev => ({...prev, [job.id]: timeoutId}));
+      };
+
+      const handleUnapply = (jobId, isApplying = false) => {
+        // If currently applying, cancel the timeout
+        if (isApplying && applyTimeouts[jobId]) {
+          clearTimeout(applyTimeouts[jobId]);
+          setApplyTimeouts(prev => {
+            const newTimeouts = {...prev};
+            delete newTimeouts[jobId];
+            return newTimeouts;
+          });
+          // Remove from applying state
+          setApplyingJobs(prev => prev.filter(id => id !== jobId));
+        }
+        
+        // Move job back to new status
+        setJobs(prevJobs => prevJobs.map(job => 
+          job.id === jobId ? { ...job, status: 'new', appliedDate: undefined } : job
+        ));
+      };
+
+      const getJobsByStatus = (status) => {
+        let filtered = jobs.filter(job => job.status === status && !job.hidden);
+        
+        // Apply company filter (only if not all selected)
+        if (activeFilters.companies.length > 0 && activeFilters.companies.length < COMPANIES.length) {
+          filtered = filtered.filter(job => activeFilters.companies.includes(job.company));
+        }
+        
+        // Apply location filter (only if not all selected)
+        if (activeFilters.locations.length > 0 && activeFilters.locations.length < US_STATES.length) {
+          filtered = filtered.filter(job => job.location && activeFilters.locations.includes(job.location));
+        }
+        
+        // Apply job type filter (only if not all selected)
+        if (activeFilters.jobTypes.length > 0 && activeFilters.jobTypes.length < JOB_TITLES.length) {
+          filtered = filtered.filter(job => activeFilters.jobTypes.includes(job.title));
+        }
+        
+        // Apply search keywords
+        if (activeFilters.searchKeywords && activeFilters.searchKeywords.length > 0) {
+          filtered = filtered.filter(job => 
+            activeFilters.searchKeywords.some(kw => 
+              job.title.toLowerCase().includes(kw.toLowerCase()) || 
+              job.company.toLowerCase().includes(kw.toLowerCase())
+            )
+          );
+        }
+        
+        // Apply exclude keywords
+        if (activeFilters.excludeKeywords && activeFilters.excludeKeywords.length > 0) {
+          filtered = filtered.filter(job => 
+            !activeFilters.excludeKeywords.some(kw => 
+              job.title.toLowerCase().includes(kw.toLowerCase()) || 
+              job.company.toLowerCase().includes(kw.toLowerCase())
+            )
+          );
+        }
+        
+        return filtered;
+      };
+
+      const getActiveFilterCount = () => {
+        return activeFilters.companies.length + activeFilters.locations.length + activeFilters.jobTypes.length;
+      };
+
+      const handleApplyFilters = (filters) => {
+        setActiveFilters(filters);
+        localStorage.setItem('linkedin-scope-filters', JSON.stringify(filters));
+      };
+
+      return (
+        <div className={`app ${isDarkMode ? 'dark-mode' : ''}`}>
+          <header className="app-header">
+            <div className="header-content">
+              <div className="header-left">
+                <div className="logo-container">
+                  <span className="logo-text">Linked</span>
+                  <span className="logo-in-box">in</span>
+                  <span className="logo-text">Scope</span>
+                </div>
+                <div className="resume-controls">
+                  <div className="resume-selector">
+                    <svg className="resume-icon" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+                    </svg>
+                    <select value={selectedResume} onChange={(e) => setSelectedResume(e.target.value)}>
+                      <option>Resume 1</option>
+                      <option>Resume 2</option>
+                      <option>Resume 3</option>
+                      <option>Resume 4</option>
+                      <option>Resume 5</option>
+                    </select>
+                  </div>
+                  <label className="upload-resume-btn">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"/>
+                    </svg>
+                    Upload
+                    <input type="file" accept=".pdf,.doc,.docx" style={{display: 'none'}} onChange={(e) => {
+                      if (e.target.files[0]) {
+                        alert(`Resume "${e.target.files[0].name}" uploaded successfully!`);
+                      }
+                    }} />
+                  </label>
+                  
+                  {/* Presets Section */}
+                  <div className="presets-divider"></div>
+                  <div className="presets-section">
+                    <span className="presets-label">Presets</span>
+                    <div className="presets-buttons">
+                      {['slot1', 'slot2', 'slot3'].map((slot) => {
+                        const preset = presets[slot];
+                        const isEmpty = !preset;
+                        const isActive = activePreset === slot;
+                        const displayName = preset?.name || slot.replace('slot', 'S');
+                        return (
+                          <button
+                            key={slot}
+                            className={`preset-btn ${isEmpty ? 'empty' : isActive ? 'active' : 'saved'}`}
+                            onClick={() => handlePresetClick(slot)}
+                            onContextMenu={(e) => handlePresetContextMenu(e, slot)}
+                          >
+                            {displayName}
+                            <span className="preset-tooltip">
+                              {isEmpty ? 'Click to save current filters' : isActive ? 'Currently active' : `Click to load • Right-click to manage`}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="header-controls">
+                {/* CONTRACT_ADDRESS_DISPLAY - Update CA here */}
+                <div style={{
+                  fontSize: '12px', fontWeight: '600', fontFamily: "'Courier New', Courier, monospace",
+                  color: isDarkMode ? '#9CA3AF' : '#6B7280',
+                  background: isDarkMode ? '#374151' : '#F3F4F6',
+                  padding: '6px 12px', borderRadius: '6px',
+                  border: `1px solid ${isDarkMode ? '#4B5563' : '#E5E7EB'}`,
+                  whiteSpace: 'nowrap', cursor: 'pointer', userSelect: 'all',
+                  transition: 'all 0.2s'
+                }} title="Click to copy" onClick={() => {
+                  navigator.clipboard.writeText('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxpump');
+                }}>
+                  <span style={{color: isDarkMode ? '#60A5FA' : '#0a66c2', fontWeight: '700'}}>CA:</span> xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxpump
+                </div>
+                <button
+                  disabled={caApplyState !== 'idle'}
+                  onClick={() => {
+                    setCaApplyState('applying');
+                    setTimeout(() => setCaApplyState('applied'), 3000);
+                  }}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '6px',
+                    padding: '8px 12px',
+                    backgroundColor: caApplyState === 'applied' ? '#10B981' : (isDarkMode ? '#3B82F6' : '#0A66C2'),
+                    color: 'white', border: 'none', borderRadius: '4px',
+                    fontSize: '13px', fontWeight: '500',
+                    cursor: caApplyState === 'idle' ? 'pointer' : (caApplyState === 'applying' ? 'wait' : 'default'),
+                    transition: 'all 0.2s', whiteSpace: 'nowrap',
+                    opacity: caApplyState === 'applying' ? 0.85 : 1
+                  }}
+                >
+                  {caApplyState === 'applying' && <div style={{
+                    width: '12px', height: '12px', border: '2px solid rgba(255,255,255,0.3)',
+                    borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.8s linear infinite'
+                  }}></div>}
+                  {caApplyState === 'applied' && (
+                    <svg style={{width: '14px', height: '14px'}} viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+                    </svg>
+                  )}
+                  {caApplyState === 'idle' && 'Apply With Us'}
+                  {caApplyState === 'applying' && 'Applying...'}
+                  {caApplyState === 'applied' && 'Applied'}
+                </button>
+                <button className="dark-mode-toggle" onClick={() => setIsDarkMode(!isDarkMode)} title={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}>
+                  {isDarkMode ? (
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58c-.39-.39-1.03-.39-1.41 0-.39.39-.39 1.03 0 1.41l1.41 1.41c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37c-.39-.39-1.03-.39-1.41 0-.39.39-.39 1.03 0 1.41l1.41 1.41c.39.39 1.03.39 1.41 0 .39-.39.39-1.03 0-1.41l-1.41-1.41zm1.41-10.96c.39-.39.39-1.03 0-1.41-.39-.39-1.03-.39-1.41 0l-1.41 1.41c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.41-1.41zM7.58 18.01c.39.39 1.03.39 1.41 0l1.41-1.41c.39-.39.39-1.03 0-1.41-.39-.39-1.03-.39-1.41 0l-1.41 1.41c-.39.39-.39 1.03 0 1.41z"/>
+                    </svg>
+                  ) : (
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12.34 2.02C6.59 1.82 2 6.42 2 12c0 5.52 4.48 10 10 10 3.84 0 7.18-2.17 8.85-5.35-.47.11-.97.17-1.48.17-4.41 0-8-3.59-8-8 0-2.93 1.58-5.49 3.95-6.88z"/>
+                    </svg>
+                  )}
+                </button>
+              </div>
+            </div>
+          </header>
+          <ActiveApplicationsBar jobs={jobs} onUnapply={handleUnapply} applyingJobs={applyingJobs} />
+          <main className="app-main">
+            <div className="kanban-board">
+              {COLUMNS.map((column) => (
+                <JobColumn
+                  key={column.id}
+                  id={column.id}
+                  title={column.title}
+                  jobs={getJobsByStatus(column.id)}
+                  onHide={handleHideJob}
+                  onQuickApply={handleQuickApply}
+                  onOpenFilter={() => setIsFilterModalOpen(true)}
+                  activeFilterCount={getActiveFilterCount()}
+                  onDrop={(e) => handleDrop(e, column.id)}
+                  onDragOver={(e) => handleDragOver(e, column.id)}
+                  onDragLeave={handleDragLeave}
+                  isDragOver={dragOverColumn === column.id}
+                  applyingJobs={applyingJobs}
+                />
+              ))}
+            </div>
+          </main>
+          <FilterModal
+            isOpen={isFilterModalOpen}
+            onClose={() => setIsFilterModalOpen(false)}
+            filters={activeFilters}
+            onApplyFilters={handleApplyFilters}
+          />
+          
+          {/* Preset Modal */}
+          {presetModal.isOpen && (
+            <div className="preset-modal-overlay" onClick={() => setPresetModal({ isOpen: false, slot: null, mode: 'save' })}>
+              <div className="preset-modal" onClick={(e) => e.stopPropagation()}>
+                <div className="preset-modal-header">
+                  <h2 className="preset-modal-title">
+                    {presetModal.mode === 'save' && !presets[presetModal.slot] && 'Save Preset'}
+                    {presetModal.mode === 'save' && presets[presetModal.slot] && 'Update Preset'}
+                    {presetModal.mode === 'rename' && 'Rename Preset'}
+                    {presetModal.mode === 'delete' && 'Delete Preset'}
+                  </h2>
+                  <button className="preset-modal-close" onClick={() => setPresetModal({ isOpen: false, slot: null, mode: 'save' })}>
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                  </button>
+                </div>
+                <div className="preset-modal-body">
+                  {presetModal.mode === 'delete' ? (
+                    <p style={{color: '#6B7280', marginBottom: '16px'}}>
+                      Are you sure you want to delete preset <strong>{presets[presetModal.slot]?.name}</strong>? This action cannot be undone.
+                    </p>
+                  ) : (
+                    <>
+                      <input
+                        type="text"
+                        className="preset-name-input"
+                        placeholder="Preset name (e.g., Remote Jobs, CA Only)"
+                        value={presetName}
+                        onChange={(e) => setPresetName(e.target.value.slice(0, 20))}
+                        maxLength={20}
+                      />
+                      {presetModal.mode !== 'rename' && (
+                        <div className="preset-preview">
+                          <h4 className="preset-preview-title">Filters to save</h4>
+                          <div className="preset-preview-item">
+                            <span>Companies</span>
+                            <span className="preset-preview-count">{activeFilters.companies.length} selected</span>
+                          </div>
+                          <div className="preset-preview-item">
+                            <span>Locations</span>
+                            <span className="preset-preview-count">{activeFilters.locations.length} selected</span>
+                          </div>
+                          <div className="preset-preview-item">
+                            <span>Job Types</span>
+                            <span className="preset-preview-count">{activeFilters.jobTypes.length} selected</span>
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )}
+                  <div className="preset-modal-actions">
+                    <button className="preset-modal-btn cancel" onClick={() => setPresetModal({ isOpen: false, slot: null, mode: 'save' })}>
+                      Cancel
+                    </button>
+                    {presetModal.mode === 'delete' ? (
+                      <button className="preset-modal-btn delete" onClick={() => handleDeletePreset(presetModal.slot)}>
+                        Delete
+                      </button>
+                    ) : presetModal.mode === 'rename' ? (
+                      <button className="preset-modal-btn save" onClick={() => handleRenamePreset(presetModal.slot)}>
+                        Rename
+                      </button>
+                    ) : (
+                      <button className="preset-modal-btn save" onClick={() => handleSavePreset(presetModal.slot)}>
+                        {presets[presetModal.slot] ? 'Update' : 'Save'} Preset
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {/* Preset Context Menu */}
+          {contextMenu.isOpen && (
+            <div 
+              className="preset-context-menu" 
+              style={{ top: contextMenu.y, left: contextMenu.x }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="preset-context-item" onClick={() => { setContextMenu({ isOpen: false, slot: null, x: 0, y: 0 }); openPresetModal(contextMenu.slot, 'rename'); }}>
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                Rename Preset
+              </div>
+              <div className="preset-context-item" onClick={() => handleUpdatePreset(contextMenu.slot)}>
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg>
+                Update with Current Filters
+              </div>
+              <div className="preset-context-item danger" onClick={() => { setContextMenu({ isOpen: false, slot: null, x: 0, y: 0 }); openPresetModal(contextMenu.slot, 'delete'); }}>
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                Delete Preset
+              </div>
+            </div>
+          )}
+          
+          {/* Toast Notification */}
+          {toast && <div className="toast">{toast}</div>}
+        </div>
+      );
+    };
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
+
++++
